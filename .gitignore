@@ -1,0 +1,5 @@
+custom.mk
+*.tgz
+S??tailscale
+tailscale
+tailscaled
