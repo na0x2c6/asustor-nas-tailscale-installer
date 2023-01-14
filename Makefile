@@ -25,8 +25,8 @@ install: tailscaled tailscale install.sh | $(init_file)
 $(init_file): SXXtailscale.template
 	cp -a $< $@
 
-tailscale tailscaled: $$(tailscale.tgz)
-	tar --strip-components 1 -xmvzf $$< $(basename $$<)/$@
+tailscale tailscaled: $(tailscale.tgz)
+	tar --strip-components 1 -xmvzf $< $(basename $<)/$@
 
 $$(tailscale.tgz):
 	curl -L $(TGZ_URL) -O
