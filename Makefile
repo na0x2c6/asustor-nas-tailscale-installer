@@ -7,10 +7,12 @@ help:
 
 PREFIX_2_DIGIT ?= 55
 init_file = S$(PREFIX_2_DIGIT)tailscale
+TARGET_TO_INSTALL = installed-on-$(ASUS_HOST)
 
 .PHONY: install
-install: tailscaled tailscale install.sh | $(init_file)
-	$(if $(ASUS_HOST),,$(error ASUS_HOST variable is not defined))
+install: $(TARGET_TO_INSTALL)
+
+$(TARGET_TO_INSTALL): tailscaled tailscale install.sh | guard-install $(init_file)
 	@set -eu; \
 	remote_temp_dir=$$(ssh $(ASUS_HOST) -- mktemp -d); \
 	if [[ -z "$$remote_temp_dir" ]] ; then \
@@ -21,6 +23,11 @@ install: tailscaled tailscale install.sh | $(init_file)
 	rsync -rltv $^ $(init_file) $(ASUS_HOST):$${remote_temp_dir}/; \
 	set +v; \
 	echo "warn: Don't forget exec \`$${remote_temp_dir}/install.sh $(init_file)\` on remote host to install"
+	touch $@
+
+.PHONY: guard-install
+guard-install:
+	$(if $(ASUS_HOST),,$(error ASUS_HOST variable is not defined))
 
 $(init_file): SXXtailscale.template
 	cp -a $< $@
@@ -28,8 +35,13 @@ $(init_file): SXXtailscale.template
 tailscale tailscaled: downloaded
 	tar --strip-components 1 -xmvzf $(tailscale.tgz) $(basename $(tailscale.tgz))/$@
 
-ver:
+
+.INTERMEDIATE: ver-tmp
+ver-tmp:
 	curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | perl -nle '/"name":\s*"(.+)"/ and print $$1' > $@
+
+ver: ver-tmp
+	if [[ ! -e $@ ]] || ! cmp -s $@ $< ; then cat $< > $@ ; fi
 
 .PHONY: ver-updated
 ver-updated:
