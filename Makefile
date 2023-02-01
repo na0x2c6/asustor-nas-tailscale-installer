@@ -25,18 +25,23 @@ install: tailscaled tailscale install.sh | $(init_file)
 $(init_file): SXXtailscale.template
 	cp -a $< $@
 
-tailscale tailscaled: $(tailscale.tgz)
-	tar --strip-components 1 -xmvzf $< $(basename $<)/$@
+tailscale tailscaled: downloaded
+	tar --strip-components 1 -xmvzf $(tailscale.tgz) $(basename $(tailscale.tgz))/$@
 
-$$(tailscale.tgz):
+ver:
+	curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | perl -nle '/"name":\s*"(.+)"/ and print $$1' > $@
+
+.PHONY: ver-updated
+ver-updated:
+	$(MAKE) --always-make ver
+
+TGZ_URL = https://pkgs.tailscale.com/stable/tailscale_$(shell cat ver 2> /dev/null || printf '<ver>')_arm64.tgz
+tailscale.tgz = $(notdir $(TGZ_URL))
+
+downloaded: ver
 	curl -L $(TGZ_URL) -O
+	touch $@
 
 .PHONY: clean
 clean:
-	rm -f *.tgz $(init_file) tailscale tailscaled
-
-.SECONDEXPANSION:
-# default is latest
-VER ?= $(shell curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | perl -nle '/"name":\s*"(.+)"/ and print $$1')
-TGZ_URL = https://pkgs.tailscale.com/stable/tailscale_$(VER)_arm64.tgz
-tailscale.tgz = $(notdir $(TGZ_URL))
+	rm -f *.tgz $(init_file) tailscale tailscaled ver downloaded
