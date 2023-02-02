@@ -12,7 +12,7 @@ TARGET_TO_INSTALL = installed-on-$(ASUS_HOST)
 .PHONY: install
 install: $(TARGET_TO_INSTALL)
 
-$(TARGET_TO_INSTALL): tailscaled tailscale install.sh | guard-install $(init_file)
+$(TARGET_TO_INSTALL): guard-install .WAIT tailscaled tailscale install.sh | $(init_file)
 	@set -eu; \
 	remote_temp_dir=$$(ssh $(ASUS_HOST) -- mktemp -d); \
 	if [[ -z "$$remote_temp_dir" ]] ; then \
@@ -57,3 +57,6 @@ downloaded: ver
 .PHONY: clean
 clean:
 	rm -f *.tgz $(init_file) tailscale tailscaled ver downloaded
+
+# for backward-compatible
+.WAIT:
