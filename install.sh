@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euvo pipefail
+set -euxvo pipefail
 
 PIDFILE="/var/run/tailscaled.pid"
 
