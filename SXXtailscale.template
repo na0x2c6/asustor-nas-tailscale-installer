@@ -8,6 +8,14 @@ PIDFILE="/var/run/tailscaled.pid"
 # Extra flags you might want to pass to tailscaled.
 FLAGS="--tun=userspace-networking"
 
+LOGGER_TAG=tailscale
+COMMAND="$TAILSCALED \
+    --statedir=/usr/local/lib/tailscale/ \
+    --state=/usr/local/lib/tailscale/tailscaled.state \
+    --socket=/var/run/tailscale/tailscaled.sock $FLAGS \
+    2>&1 \
+    | logger -t $LOGGER_TAG"
+
 mkdir -p /var/run/tailscale/ /usr/local/lib/tailscale
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
@@ -15,13 +23,10 @@ chmod 777 /dev/net/tun
 
 start-stop-daemon \
     --start --background \
-    --exec $TAILSCALED \
+    --exec sh \
     --make-pidfile \
     --pidfile "$PIDFILE" \
-    -- \
-    --statedir=/usr/local/lib/tailscale/ \
-    --state=/usr/local/lib/tailscale/tailscaled.state \
-    --socket=/var/run/tailscale/tailscaled.sock $FLAGS
+    -- -c "$COMMAND"
 
 # sleep 5
 if ! grep -q 'net.ipv4.ip_forward' /etc/sysctl.conf ; then
