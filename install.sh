@@ -34,9 +34,9 @@ __backup_if_exist() {
 }
 __backup_if_exist $backup_dir /usr/local/bin/tailscale /usr/local/sbin/tailscaled /usr/local/etc/init.d/$init_file
 
-sudo cp $base_dir/tailscale  /usr/local/bin/tailscale
-sudo cp $base_dir/tailscaled /usr/local/sbin/tailscaled
-sudo cp $base_dir/$init_file /usr/local/etc/init.d/$init_file
+sudo cp -f $base_dir/tailscale  /usr/local/bin/tailscale
+sudo cp -f $base_dir/tailscaled /usr/local/sbin/tailscaled
+sudo cp -f $base_dir/$init_file /usr/local/etc/init.d/$init_file
 sudo chmod +x /usr/local/bin/tailscale
 sudo chmod +x /usr/local/sbin/tailscaled
 sudo chmod +x /usr/local/etc/init.d/$init_file

@@ -20,7 +20,7 @@ $(TARGET_TO_INSTALL): guard-install .WAIT tailscaled tailscale install.sh | $(in
 		exit 1; \
 	fi; \
 	set -v; \
-	rsync -rltv $^ $(init_file) $(ASUS_HOST):$${remote_temp_dir}/; \
+	rsync -rltv tailscaled tailscale install.sh $(init_file) $(ASUS_HOST):$${remote_temp_dir}/; \
 	set +v; \
 	echo "warn: Don't forget exec \`$${remote_temp_dir}/install.sh $(init_file)\` on remote host to install"
 	touch $@
