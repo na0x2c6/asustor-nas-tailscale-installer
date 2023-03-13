@@ -38,7 +38,7 @@ tailscale tailscaled: downloaded
 
 .INTERMEDIATE: ver-tmp
 ver-tmp:
-	curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | perl -nle '/"name":\s*"(.+)"/ and print $$1' > $@
+	curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | perl -nle '/"tag_name":\s*"v(.+)"/ and print $$1' > $@
 
 ver: ver-tmp
 	if [[ ! -e $@ ]] || ! cmp -s $@ $< ; then cat $< > $@ ; fi
