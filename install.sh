@@ -19,6 +19,7 @@ base_dir=$(dirname $0)
 backup_dir="$base_dir/backup"
 
 if [[ -e "$PIDFILE" ]] ; then
+    sudo pkill -P $(cat $PIDFILE) || true
     sudo start-stop-daemon -K -p $PIDFILE || true
 fi
 
